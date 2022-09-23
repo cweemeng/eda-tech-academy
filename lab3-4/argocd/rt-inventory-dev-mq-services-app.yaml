@@ -2,16 +2,16 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   creationTimestamp: null
-  name: ahsoka20-mq-services-app
+  name: ventress5-mq-services-app
   namespace: openshift-gitops
 spec:
   destination:
-    namespace: ahsoka20
+    namespace: ventress5
     server: https://kubernetes.default.svc
-  project: ahsoka20
+  project: ventress5
   source:
     path: lab3-4/services/ibm-mq/overlays
-    repoURL: https://github.com/jbcodeforce/eda-tech-academy.git
+    repoURL: https://github.com//eda-tech-academy.git
   syncPolicy:
     automated:
       prune: true
