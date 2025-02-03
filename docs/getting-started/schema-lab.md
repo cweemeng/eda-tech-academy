@@ -31,18 +31,18 @@ This section provides the instructions for setting up the Kafka Client that will
 
     ```sh
     C:\Users\rajan>java -version
-    At least version 1.8.0_301 should be available.
+    At least version 17.0 should be available.
     ```
 
 	If it’s not installed, download and install the Java Runtime. Use the [adoptium site to download Java](https://adoptium.net/)
 
-2.	Download the sample Kafka Client code [from here:](https://github.com/ibm-cloud-architecture/eda-tech-academy/blob/main/tech-jam/KafkaClient_20220131.zip) to be used on your local laptop.
+2.	Download the sample Kafka Client code [from here:](https://github.com/natarajan-k/kafka-client/raw/main/pre-compiled/KafkaClient_20240203.zip) to be used on your local laptop.
 
 3.	Unzip the downloaded Kafka Client (KafkaClient_YYYYMMDD.zip) into a folder: 
 
     ```sh
     C:\TechJam\EventStreams_Lab\
-    unzip KafkaClient_20220131.zip 
+    unzip KafkaClient_20240203.zip 
     ```
 
 4.	Test the client: Open a Command Prompt.
@@ -101,7 +101,7 @@ Now, let’s take a look at how the Schema Registry works.
     | --- | --- |
     | Finn | [https://cpd-cp4i.apps.finn.coc-ibm.com/integration/kafka-clusters/cp4i-eventstreams/es-demo/gettingstarted](https://cpd-cp4i.apps.finn.coc-ibm.com/integration/kafka-clusters/cp4i-eventstreams/es-demo/gettingstarted) |
     | Cody| [https://cpd-cp4i.apps.cody.coc-ibm.com/integration/kafka-clusters/cp4i-eventstreams/es-demo/gettingstarted](https://cpd-cp4i.apps.cody.coc-ibm.com/integration/kafka-clusters/cp4i-eventstreams/es-demo/gettingstarted) |
-    | Grievous | [https://cpd-cp4i.apps.grievous.coc-ibm.com/integration/kafka-clusters/cp4i-eventstreams/es-demo/gettingstarted](https://cpd-cp4i.apps.grievous.coc-ibm.com/integration/kafka-clusters/cp4i-eventstreams/es-demo/gettingstarted) |  
+    | Ventress | [https://cpd-cp4i.apps.ventress.coc-ibm.com/integration/kafka-clusters/cp4i-eventstreams/es-demo/gettingstarted](https://cpd-cp4i.apps.ventress.coc-ibm.com/integration/kafka-clusters/cp4i-eventstreams/es-demo/gettingstarted) |  
 
     ![](./images/lab-1-es-1.png)
 
@@ -125,7 +125,7 @@ Now, let’s take a look at how the Schema Registry works.
 
    ![](./images/lab-2-sc-5.png){ width="600" }
 
-   * Click Upload Definition -> Choose `customer.avsc` located in the Kafka Client unzipped folder. (`C:\TechJam\EventStreams_Lab\KafkaClient_YYYYMMDD\com\example`)
+   * Click Upload Definition -> Choose `customer.avsc` located in the Kafka Client unzipped folder. (`C:\TechJam\EventStreams_Lab\KafkaClient_YYYYMMDD\`)
    
     ![](./images/lab-2-sc-7.png){ width="1200" }
 
@@ -139,16 +139,17 @@ Now, let’s take a look at how the Schema Registry works.
 ## Creating a Kafka User with appropriate rights.
 
 
-![](./images/lab-2-sc-10.png)
 
 1.	Go to the Event Streams home page. **Select** “Connect to this Cluster” -> Generate SCRAM Credentials.
  
     ![](./images/lab-2-sc-9.png){ width="1200" }
+    
+ ![](./images/lab-2-sc-10.png)
 
     Refer to the screenshot attached as reference. 
 
  
-    ![](./images/lab-2-sc-11.png){ width="1300" }
+![](./images/lab-2-sc-11.png){ width="1300" }
 
     Keep information about the SCRAM password. 
 ## Gather Connection Details
@@ -179,8 +180,9 @@ From the Event Stream home page, click on “Connect to this Cluster”.  Get th
     | group.id	| Enter a Consumer Group ID. You can enter a Consumer Group. Remember that it should have a prefix of your studentID. E.g. jam60-consumer-group-v1 |
     | ssl.truststore.location | Should point to the Truststore certificate downloaded. Example:  ./es-cert.p12 |
     | ssl.truststore.password | Enter the Truststore password obtained. |
-    | schema.registry.url | Enter the URL obtained in previous section e.g. https://es1-ibm-es-ac-reg-external-cp4i.apps.ocp46.tec.uk.ibm.com |
-    | schema.registry.basic.auth.user.info |	<SCRAM_USER\>:<SCRAM_PASSEORD\> |
+    | apicurio.registry.url | Enter the URL obtained in previous section e.g. https://es1-ibm-es-ac-reg-external-cp4i.apps.ocp46.tec.uk.ibm.com |
+    | schema.registry.basic.auth.user | \<SCRAM_USER\> |
+    | schema.registry.basic.auth.password | \<SCRAM_PASSWORD\> |
     | schema.registry.ssl.truststore.location	| Same as ssl.truststore.location |
     | schema.registry.ssl.truststore.password | 	Same as ssl.truststore.password |
 
@@ -188,60 +190,64 @@ From the Event Stream home page, click on “Connect to this Cluster”.  Get th
     This is how your `config.properties` should look like after the changes. This is a sample. Do not copy and paste this contents. 
 
     ```sh
-    ## Mandatory Section ##
-    # Set to true if avro schema is enabled for the topic
-    enableschemaavro = true
-    # Set to true if want to enable Intercept Monitoring.
-    enableintercept = false
-    # Set this to true if mTLS (2-way authentication) is enabled.
-    enablemtls = false
-    # Confluent Broker related properties
-    bootstrap.servers = minimal-prod-kafka-bootstrap-es.mycluster-rajan09-992844b4e64c83c3dbd5e7b5e2da5328-0000.sng01.containers.appdomain.cloud:443
-    sasl.jaas.config = org.apache.kafka.common.security.scram.ScramLoginModule required username='jam60-kafka01' password='Do0vIJuwnANZ';
-    # Options are PLAIN, SCRAM, GSSAPI
-    sasl.mechanism=SCRAM-SHA-512
-    # Options are SSL, PLAINTEXT, SASL_SSL, SASL_PLAINTEXT
-    security.protocol=SASL_SSL
-    topic=jam60-topic1
-    #topic=UserDatabase
-    # Consumer Group ID
-    group.id = jam60-student-group-v1 
-    client.id = student-client-v1
-    #--------------------------------
-    ## To be filled in if TLS is enabled for the Brokers
-    # Options are PKCS12, JKS, PEM. Password not required for PEM.
-    ssl.truststore.type=PKCS12
-    ssl.truststore.location=./es-cert.p12
-    ssl.truststore.password=muuJr3QFiiwa
-    #--------------------------------
-    ## To be filled if mTLS (Mutual TLS) is enabled in Brokers
-    ssl.keystore.location=/home/rajan/load_security/kafka.client.keystore.jks
-    ssl.keystore.password=clientpass
-    ssl.key.password=clientpass
-    #-------------------------------
-    ## To be filled in if Schema is enabled
-    schema.registry.url = https://minimal-prod-ibm-es-ac-reg-external-es.mycluster-rajan09-992844b4e64c83c3dbd5e7b5e2da5328-0000.sng01.containers.appdomain.cloud
-    # The following parameter MUST be set to false if connecting to EventStreams (APICURIO Schema).
-    auto.register.schemas=true
-    ## To be filled in if Schema Registry requires Authentication (e.g. with RBAC enabled). Otherwise leave it as default.
-    basic.auth.credentials.source = USER_INFO
-    schema.registry.basic.auth.user.info = jam60-kafka01:Do0vIJuwnANZ
-    #--------------------------------
-    ## To be filled in if TLS is enabled for Schema Registry
-    schema.registry.ssl.truststore.location=./es-cert.p12
-    schema.registry.ssl.truststore.password=muuJr3QFiiwa
-    #--------------------------------
-    ## To be filled if Consumer / Producer Intercept should be turned on
-    intercept_bootstrapServers = es3minimal-kafka-bootstrap-es3.mycluster-rajan07-992844b4e64c83c3dbd5e7b5e2da5328-0000.jp-tok.containers.appdomain.cloud:443
-    intercept_sasljaas = org.apache.kafka.common.security.scram.ScramLoginModule required username='rajan' password='CfKQZG9Cm7g5';
-    intercept_security = SASL_SSL
-    intercept_saslmechanism = SCRAM-SHA-512
-    #--------------------------------
-    ## To be used when Kerberos Authentication is used
-    sasl.kerberos.service.name=kafka
-    #--------------------------------
-    ## Required parameters if Confluent in Confluent Cloud is used
-    retries = 2
+	## Mandatory Section ##
+	# Set to true if avro schema is enabled for the topic
+	enableschemaavro = true
+	# Set to true if want to enable Intercept Monitoring.
+	enableintercept = false
+	# Set this to true if mTLS (2-way TLS authentication) is enabled.
+	enablemtls = false
+	# Broker related properties
+	bootstrap.servers = es-demo-kafka-bootstrap-cp4i-eventstreams.apps.cody.coc-ibm.com:443
+	sasl.jaas.config = org.apache.kafka.common.security.scram.ScramLoginModule required username='cody200-sr-user' password='EelwRR1';
+	# Example: sasl.jaas.config = org.apache.kafka.common.security.scram.ScramLoginModule required username='student01' password='B9BmjHvJZC';
+	# Options are PLAIN, SCRAM-SHA-512, GSSAPI
+	sasl.mechanism=SCRAM-SHA-512
+	# Options are SSL, PLAINTEXT, SASL_SSL, SASL_PLAINTEXT
+	security.protocol=SASL_SSL
+	topic=cody200-sr
+	# Consumer Group ID
+	group.id = cody200-group1
+	# Example: group.id = student01-group
+	client.id=302071b2-7daf-4844
+	#--------------------------------
+	## To be filled in if TLS is enabled for the Brokers
+	# Options are PKCS12, JKS, PEM. Password not required for PEM.
+	ssl.truststore.type=PKCS12
+	ssl.truststore.location=./es-cert.p12
+	ssl.truststore.password=luONbNsf
+	#--------------------------------
+	## To be filled if mTLS (Mutual TLS) is enabled in Brokers
+	ssl.keystore.location=/home/rajan/load_security/kafka.client.keystore.jks
+	ssl.keystore.password=clientpass
+	ssl.key.password=clientpass
+	#-------------------------------
+	## To be filled in if Schema is enabled
+	apicurio.registry.url = https://es-demo-ibm-es-ac-reg-external-cp4i-eventstreams.apps.cody.coc-ibm.com
+	# To be set to true if schema is not created up front.
+	auto.register.schemas=false
+	## To be filled in if Schema Registry requires Authentication.
+	basic.auth.credentials.source = USER_INFO
+	schema.registry.basic.auth.user = cody200-sr-user
+	schema.registry.basic.auth.password = EelwRR1
+	#--------------------------------
+	## To be filled in if TLS is enabled for Schema Registry
+	schema.registry.ssl.truststore.type=PKCS12
+	schema.registry.ssl.truststore.location=./es-cert.p12
+	schema.registry.ssl.truststore.password=luNbNsf
+	#--------------------------------
+	## To be filled if Consumer / Producer Intercept should be turned on
+	intercept_bootstrapServers = es3minimal-kafka-bootstrap-es3.mycluster-rajan07-992844b4e64c83c3dbd5e7b5e2da5328-0000.jp-tok.containers.appdomain.cloud:443
+	intercept_sasljaas = org.apache.kafka.common.security.scram.ScramLoginModule required username='rajan' password='CfKQZG9Cm7g5';
+	intercept_security = SASL_SSL
+	intercept_saslmechanism = SCRAM-SHA-512
+	#--------------------------------
+	## To be used when Kerberos Authentication is used
+	sasl.kerberos.service.name=kafka
+	#--------------------------------
+	## Other Optional parameters.
+	retries = 2
+
     ```
 
 1. Test producing message. 
@@ -276,7 +282,7 @@ From the Event Stream home page, click on “Connect to this Cluster”.  Get th
 
 1. We will change the schema registry by adding a new field with default value, and check what happens when producing / consuming. 
 
-    In the client computer, make a copy of the customer.avsc file (located in `C:\TechJam\EventStreams_Lab\KafkaClient_YYYYMMDD\com\example>`) and name it `customer_v2.avsc`. You can do this from Windows Explorer.
+    In the client computer, make a copy of the customer.avsc file (located in `C:\TechJam\EventStreams_Lab\KafkaClient_YYYYMMDD\>`) and name it `customer_v2.avsc`. You can do this from Windows Explorer.
 
     Edit the file using Notepad++. Add this line right after country. Change the version to version `1.1`.
     
@@ -323,7 +329,7 @@ From the Event Stream home page, click on “Connect to this Cluster”.  Get th
 
 1.	Now try updating the schema. Validation should pass. Change the version number and click on “Add Schema”. 
 
-## Test producing / consuming data
+7. Test producing / consuming data
 
 1. Getting details about the schema. 
 
@@ -348,14 +354,14 @@ The response should be something like:
 
 ```json
 {"config":"FULL","type":"COMPATIBILITY"}
-````
+```
 
 This shows that the default compatibility is FULL.
 
 Next get the compatibility of the specific schema that we are using. 
 
 ```sh
-curl -ki -X GET -H “Accept: application/json” -H “Authorization: Basic <BASIC_AUTH_TOKEN>” https://es1-ibm-es-ac-reg-external-cp4i.apps.ocp46.tec.uk.ibm.com/artifacts/<YOUR_SCHEMA_NAME>/rules
+curl -ki -X GET -H "Accept: application/json" -H "Authorization: Basic <BASIC_AUTH_TOKEN>" https://es1-ibm-es-ac-reg-external-cp4i.apps.ocp46.tec.uk.ibm.com/artifacts/<YOUR_SCHEMA_NAME>/rules
 ```
 
 This should give you an empty response 

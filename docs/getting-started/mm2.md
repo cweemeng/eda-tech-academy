@@ -61,7 +61,7 @@ Message offset value will not be preserved due to retention policy in source kaf
 
 You can check the status of strimzi topic here:
 
-[https://kafdrop-strimzi.rajancluster-sng01-992844b4e64c83c3dbd5e7b5e2da5328-0000.jp-tok.containers.appdomain.cloud/topic/basicuserdata](https://kafdrop-strimzi.rajancluster-sng01-992844b4e64c83c3dbd5e7b5e2da5328-0000.jp-tok.containers.appdomain.cloud/topic/basicuserdata)  
+[https://kafdrop-rajan-strimzi.rajancluster-sng01-992844b4e64c83c3dbd5e7b5e2da5328-0000.jp-tok.containers.appdomain.cloud/topic/basicuserdata](https://kafdrop-rajan-strimzi.rajancluster-sng01-992844b4e64c83c3dbd5e7b5e2da5328-0000.jp-tok.containers.appdomain.cloud/topic/basicuserdata)  
 
 Take note of the topic name, consumer group, consumer lags and last offset message. 
 
@@ -76,7 +76,7 @@ Use one of the following KafkaConnect_URL depending on the Openshift Cluster tha
 
 | Host | URL |
 | --- | --- |
-| Mandalorian | [connect-cp4i-eventstreams.apps.mandalorian.coc-ibm.com](https://connect-cp4i-eventstreams.apps.mandalorian.coc-ibm.com) |
+| Ventress | [connect-cp4i-eventstreams.apps.ventress.coc-ibm.com](https://connect-cp4i-eventstreams.apps.ventress.coc-ibm.com) |
 | Cody| [connect-cp4i-eventstreams.apps.cody.coc-ibm.com](https://connect-cp4i-eventstreams.apps.cody.coc-ibm.com)  |
 | Finn | [connect-cp4i-eventstreams.apps.finn.coc-ibm.com](https://connect-cp4i-eventstreams.apps.finn.coc-ibm.com)  |  
 
@@ -153,10 +153,10 @@ Ensure the MirrorMaker related plugins are listed.
 
     | parameter | Value |
     | --- | --- |
-    | **name**	| Enter your studentID. Example: student60 |
+    | **name**	| Enter your studentID. Example: student60-source |
     | **source.cluster.alias**	| A name that you will give to the source cluster. All replicated topics will have a prefix of this alias.Make sure to use the studentID as the prefix. Example: student60-source |
     | **target.cluster.alias**	| A name that you will give to the target cluster. Make sure to use the studentID as the prefix. Example: student60-target|
-    |  **source.cluster.bootstrap.servers**	| Kafka Bootstrap URL of the source Strimzi cluster. You can use this. `rajancluster-sng01-992844b4e64c83c3dbd5e7b5e2da5328-0000.jp-tok.containers.appdomain.cloud:32463` |
+    |  **source.cluster.bootstrap.servers**	| Kafka Bootstrap URL of the source Strimzi cluster. You can use this. `rajancluster-sng01-992844b4e64c83c3dbd5e7b5e2da5328-0000.jp-tok.containers.appdomain.cloud:30719` |
     | **target.cluster.bootstrap.servers**	| Kafka Bootstrap URL of the target Event Stream Cluster. For the purpose of this lab, we have created a PLAIN connection. `es-demo-kafka-bootstrap.cp4i-eventstreams.svc:9092` |
     | **topics**	| Use the topic called “basicuserdata” that has been created for the purpose of this lab. | 
 
@@ -193,7 +193,7 @@ Ensure the MirrorMaker related plugins are listed.
     ["cody20"]
 
     # Then, get the status of the connector.
-    curl -ki -X GET -H "Accept: application/json" https://<KAFKACONNECT_URL>/<connector_name>/status
+    curl -ki -X GET -H "Accept: application/json" https://<KAFKACONNECT_URL>/connectors/<connector_name>/status
 
     # Example:
     curl -ki -X GET -H "Accept: application/json" https://connect-cp4i-eventstreams.apps.cody.coc-ibm.com/connectors/cody20/status/
@@ -233,7 +233,7 @@ Look for the replicated topic. The topic should be named as: `<SOURCE_CLUSTER_AL
     | **name**	| Enter your studentID-checkpoint. Example: cody20-checkpoint |
     | **source.cluster.alias** |	A name that you will give to the source cluster. All replicated topics will have a prefix of this alias.Make sure to use the studentID as the prefix. Example: cody20-source |
     | **target.cluster.alias** |	A name that you will give to the target cluster. Make sure to use the studentID as the prefix. Example: cody20-target |
-    | **source.cluster.bootstrap.servers** |	Kafka Bootstrap URL of the source Strimzi cluster. `rajancluster-sng01-992844b4e64c83c3dbd5e7b5e2da5328-0000.jp-tok.containers.appdomain.cloud:32463` |
+    | **source.cluster.bootstrap.servers** |	Kafka Bootstrap URL of the source Strimzi cluster. `rajancluster-sng01-992844b4e64c83c3dbd5e7b5e2da5328-0000.jp-tok.containers.appdomain.cloud:30719` |
     | **target.cluster.bootstrap.servers** |	Kafka Bootstrap URL of the target Event Stream Cluster. For the purpose of this lab, we have created a PLAIN connection. `es-demo-kafka-bootstrap.cp4i-eventstreams.svc:9092` |
     | **groups** |	The consumer groups that has to be replicated. For the purpose of this lab we will replicate all groups in the source Kafka. So, use the value “.*” |
 
@@ -309,14 +309,16 @@ The new consumer group should appear and the offset lag should match with that o
 Now you can consume the data from the Event Streams cluster. You will only be consuming the remaining messages. 
 
 Make a copy of the `config.properties` file.  Call it `config.properties.mm2`
-Edit the `config.properties.mm2 `file and change the following fields.
+Edit the `config.properties.mm2 `file and change the following fields.   
+You will have to create a new SCRAM user, and this time, at the point where you choose consumers, select "All Consumers".   
 
 
 | Field	| Value |
 | --- | --- |
+| **sasl.jaas.config** |	Use the newly created SCRAM user and password |
 | **enableschemaavro** |	False |
 | **topic** | 	The newly replicated topic. Example: student60-source.basicuserdata |
-| **group.id** |	You should use the same Consumer Group as the one that has been replicated. Student60-general-group-v1 |
+| **group.id** |	You should use the same Consumer Group as the one that has been replicated.     general-strimzi-consumer-v1 |
 
 Run the KafkaClient in consumer mode:
 
